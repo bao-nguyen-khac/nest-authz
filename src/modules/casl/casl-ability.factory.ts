@@ -1,9 +1,9 @@
 import {
-  Ability,
   AbilityBuilder,
-  AbilityClass,
+  createMongoAbility,
   ExtractSubjectType,
   InferSubjects,
+  MongoAbility,
 } from '@casl/ability';
 import { Injectable } from '@nestjs/common';
 import { Action } from 'src/enums/action.enum';
@@ -12,14 +12,14 @@ import { UserEntity } from '../user/user.entity';
 
 type Subjects = InferSubjects<typeof Article | typeof UserEntity> | 'all';
 
-export type AppAbility = Ability<[Action, Subjects]>;
+export type AppAbility = MongoAbility<[Action, Subjects]>;
 
 @Injectable()
 export class CaslAbilityFactory {
   createForUser(user: UserEntity) {
-    const { can, cannot, build } = new AbilityBuilder<
-      Ability<[Action, Subjects]>
-    >(Ability as AbilityClass<AppAbility>);
+    const { can, cannot, build } = new AbilityBuilder<AppAbility>(
+      createMongoAbility,
+    );
 
     if (user.isAdmin) {
       can(Action.Manage, 'all'); // read-write access to everything
